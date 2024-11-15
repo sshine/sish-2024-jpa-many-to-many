@@ -39,12 +39,14 @@ public class InitData implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         List<Region> regions = fetchRegions();
-
         for (Region region : regions) {
             regionRepository.save(region);
         }
 
         List<Kommune> kommuner = fetchKommuner(regions);
+        for (Kommune kommune : kommuner) {
+            kommuneRepository.save(kommune);
+        }
 
         System.out.println("Hentet " + regions.size() + " regioner og " + kommuner.size() + " kommuner");
     }

@@ -33,6 +33,8 @@ public class InitDataTest {
 
     @Test
     public void testFetchRegions() throws Exception {
+        Files.list(Path.of(".")).forEach((file) -> System.out.println(file));
+
         Path regionsPath = Path.of("data/regioner.json");
         String regionsData = Files.readString(regionsPath);
 
@@ -47,7 +49,7 @@ public class InitDataTest {
 
         List<Region> regions = initData.fetchRegions();
 
-        Assertions.assertEquals(regions.size(), 5);
+        Assertions.assertEquals(5, regions.size());
     }
 
     // TODO: testFetchKommuner()
