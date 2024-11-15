@@ -14,10 +14,11 @@ public class Kommune {
     private String navn;
     private String href;
 
-    public Kommune(String kode, String navn, String href) {
+    public Kommune(String kode, String navn, String href, Region region) {
         this.kode = kode;
         this.navn = navn;
         this.href = href;
+        this.region = region;
     }
 
     @ManyToOne
