@@ -18,6 +18,27 @@ public class KommuneControllerTest {
 
     @Test
     void testGetKommunerByRegion() throws Exception {
-        mockMvc.perform(get("/kommuner")).andExpect(status().isOk());
+        // Positive tests
+        String[] regionskoder = new String[]{
+                "1081", "1082", "1083", "1084", "1085"
+        };
+
+        for (String regionskode : regionskoder) {
+            mockMvc.perform(get("/kommuner").param("regionskode", regionskode))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].region.kode").value(regionskode))
+                .andExpect(jsonPath("$[1].region.kode").value(regionskode));
+
+            // TODO: Test for ALLE objekterne! (også hvis der er variabelt mange af dem)
+        }
+
+        // Negative tests
+        mockMvc.perform(get("/kommuner").param("regionskode", "Hitler"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
     }
+
+    // TODO: Lav et endpoint der hedder /regioner
+    // TODO: Test at /regioner returnerer objekter med unikke regionskoder
+    // TODO: Test at ALLE regioner har egenskaben fra `testGetKommunerByRegion`
 }
