@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,21 +25,33 @@ public class KommuneControllerTest {
         };
 
         for (String regionskode : regionskoder) {
-            mockMvc.perform(get("/kommuner").param("regionskode", regionskode))
+            mockMvc
+                .perform(get("/kommuner").param("regionskode", regionskode))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].region.kode").value(regionskode))
-                .andExpect(jsonPath("$[1].region.kode").value(regionskode));
 
-            // TODO: Test for ALLE objekterne! (også hvis der er variabelt mange af dem)
+                // Test that the first and second kommune's region has the queried regionskode.
+                .andExpect(jsonPath("$[0].region.kode").value(regionskode))
+                .andExpect(jsonPath("$[1].region.kode").value(regionskode))
+
+                // Instead of testing only $[0] and $[1], test this for ALL objects!
+                .andExpect(jsonPath("$[*].region.kode")
+                    .value(Matchers.everyItem(Matchers.equalTo(regionskode))));
         }
 
         // Negative tests
-        mockMvc.perform(get("/kommuner").param("regionskode", "Hitler"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isEmpty());
+        mockMvc
+            .perform(get("/kommuner").param("regionskode", "123456789"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isEmpty());
     }
 
-    // TODO: Lav et endpoint der hedder /regioner
+    @Test
+    void testGetRegionerUnique() throws Exception {
+        mockMvc
+            .perform(get("/regioner"))
+            .andExpect(status().isOk());
+    }
+
     // TODO: Test at /regioner returnerer objekter med unikke regionskoder
     // TODO: Test at ALLE regioner har egenskaben fra `testGetKommunerByRegion`
 }

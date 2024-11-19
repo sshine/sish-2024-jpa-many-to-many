@@ -6,8 +6,11 @@ import com.example.demo.repository.KommuneRepository;
 import com.example.demo.repository.RegionRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.net.http.HttpClient;
@@ -24,9 +27,6 @@ public class InitDataIntegrationTest {
     private KommuneRepository kommuneRepository;
 
     @Autowired
-    private HttpClient httpClient;
-
-    @Autowired
     private InitData initData;
 
     @Test
@@ -38,5 +38,12 @@ public class InitDataIntegrationTest {
         Assertions.assertEquals(99, kommuner.size());
     }
 
-    // TODO: Mock også HttpClient når vi tester databasen.
+    // Mock også HttpClient når vi tester databasen.
+    @TestConfiguration
+    static class MockHttpClientConfig {
+        @Bean
+        public HttpClient httpClient() {
+            return Mockito.mock(HttpClient.class);
+        }
+    }
 }
