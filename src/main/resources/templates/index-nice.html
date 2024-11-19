@@ -48,19 +48,16 @@
             },
             template: `
                 <div class="region">
-                  <h3><button @click="fetchKommuner(region.kode)">⬇️</button> {{ region.navn }}</h3>
+                  <h3><button @click="fetchKommune(region.kode)">⬇️</button> {{ region.navn }}</h3>
                   <ul>
                     <li v-for="kommune in kommuner">
-                        <kommune
-                            :kommune="kommune"
-                            @item-deleted="handleKommuneDeleted">
-                        </kommune>
+                        {{ kommune }}
                     </li>
                   </ul>
                 </div>
             `,
             methods: {
-                fetchKommuner(regionskode) {
+                fetchKommune(regionskode) {
                     axios
                         .get("/kommuner", { params: { regionskode: regionskode } })
                         .then(response => {
@@ -69,36 +66,9 @@
                         .catch(error => {
                             console.log(error);
                         });
-                },
-                handleKommuneDeleted(id) {
-                    console.log("Så sletter vi bare kommunen " + id);
-                    this.kommuner = this.kommuner.filter(kommune => kommune.id !== id);
                 }
             }
         });
-
-    Vue.component('kommune', {
-        props: ['kommune'],
-        template: `
-            <div class="kommune">
-                {{ kommune.navn }}
-                <button @click="removeKommune(kommune.id)">❌</button>
-            </div>
-        `,
-        methods: {
-            removeKommune(id) {
-                axios
-                    .post("/kommuner/remove", null, { params: { id: id } })
-                    .then(response => {
-                        console.log("Om lidt sletter vi kommunen " + id);
-                        this.$emit('item-deleted', id);
-                    })
-                    .catch(error => {
-                        console.log(error);
-                    });
-            }
-        }
-    });
     </script>
 
 </body>
