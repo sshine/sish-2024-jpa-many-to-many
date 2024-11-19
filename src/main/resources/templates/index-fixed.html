@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <div id="app">
+        <h2>Regionskoder:</h2>
+        <ul v-for="regionskode in regionskoder">
+            <li>{{ regionskode }}</li>
+        </ul>
+        <h2>Regioner:</h2>
+        <ul v-for="region in regioner">
+            <li>{{ region }}</li>
+            <region :region="region"></region>
+        </ul>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="text/babel">
+        var app = new Vue({
+            el: '#app',
+            data: {
+                regionskoder: [ "1081", "1082", "1083", "1084", "1085" ],
+                regioner: [],
+            },
+            created() {
+                axios
+                    .get("/regioner")
+                    .then(response => {
+                        this.regioner = response.data;
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+            }
+        });
+
+        Vue.component('region', {
+            props: ['region'],
+            template: `
+                <div class="region">
+                  <h3>{{ region.navn }}</h3>
+                  <p>({{ region.kode }}, {{ region.href }})</p>
+                </div>
+            `,
+        });
+    </script>
+
+</body>
+</html>
