@@ -2,17 +2,20 @@
 <html>
 <body>
     <div id="app">
-        <h2>Regionskoder</h2>
-        <ul>
-            <li v-for="regionskode in regionskoder">
-                {{ regionskode }}
-            </li>
-        </ul>
-
         <h2>Regioner</h2>
         <ul>
             <li v-for="region1 in regioner">
                 <region :region="region1"></region>
+            </li>
+        </ul>
+
+        <h2>Opret Kommune</h2>
+        <opretkommune :regioner="regioner"></opretkommune>
+
+        <h2>Regionskoder</h2>
+        <ul>
+            <li v-for="regionskode in regionskoder">
+                {{ regionskode }}
             </li>
         </ul>
     </div>
@@ -53,7 +56,8 @@
                     <li v-for="kommune in kommuner">
                         <kommune
                             :kommune="kommune"
-                            @item-deleted="handleKommuneDeleted">
+                            @item-deleted="handleKommuneDeleted"
+                            @item-created="handleKommuneCreated">
                         </kommune>
                     </li>
                   </ul>
@@ -73,6 +77,10 @@
                 handleKommuneDeleted(id) {
                     console.log("Så sletter vi bare kommunen " + id);
                     this.kommuner = this.kommuner.filter(kommune => kommune.id !== id);
+                },
+                handleKommuneCreated(kommune) {
+                    console.log("Den er god nok!");
+                    this.kommuner.push(kommune);
                 }
             }
         });
@@ -88,7 +96,7 @@
         methods: {
             removeKommune(id) {
                 axios
-                    .post("/kommuner/remove", null, { params: { id: id } })
+                    .delete("/kommuner/remove", { params: { id: id } })
                     .then(response => {
                         console.log("Om lidt sletter vi kommunen " + id);
                         this.$emit('item-deleted', id);
@@ -96,6 +104,69 @@
                     .catch(error => {
                         console.log(error);
                     });
+            }
+        }
+    });
+
+    Vue.component('opretkommune', {
+        props: ['regioner'],
+        data() {
+            return {
+                kommune: {
+                    regionId: null,
+                    kode: '',
+                    href: '',
+                    navn: ''
+                },
+            };
+        },
+        template: `
+          <form @submit.prevent="submitForm">
+            <!-- REGION_ID Dropdown -->
+            <div>
+              <label for="regionId">Region</label>
+              <select v-model="kommune.regionId" id="regionId">
+                <option v-for="region in regioner" :key="region.id" :value="region.id">
+                  {{ region.navn }}
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label for="kode">KODE</label>
+              <input v-model="kommune.kode" type="text" id="kode" placeholder="Enter KODE" required />
+            </div>
+
+            <div>
+              <label for="href">HREF</label>
+              <input v-model="kommune.href" type="text" id="href" placeholder="Enter HREF" required />
+            </div>
+
+            <div>
+              <label for="navn">NAVN</label>
+              <input v-model="kommune.navn" type="text" id="navn" placeholder="Enter NAVN" required />
+            </div>
+
+            <button type="submit">Create Kommune</button>
+          </form>
+        `,
+        methods: {
+            submitForm() {
+              axios
+                .post('/kommuner/add', null, { params: {
+                    regionId: this.kommune.regionId,
+                    kode: this.kommune.kode,
+                    href: this.kommune.href,
+                    navn: this.kommune.navn,
+                } })
+                .then(response => {
+                    this.$emit('item-created', this.kommune);
+                    console.log('Kommune Created:', this.kommune);
+                    this.kommune = { regionId: null, kode: '', href: '', navn: '' };
+                })
+                .catch(error => {
+                    console.log(error);
+                });
             }
         }
     });

@@ -6,10 +6,7 @@ import com.example.demo.repository.KommuneRepository;
 import com.example.demo.repository.RegionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -37,7 +34,7 @@ public class KommuneController {
             : kommuneRepository.findByRegion_Kode(regionskode);
     }
 
-    @PostMapping("/kommuner/remove")
+    @DeleteMapping("/kommuner/remove")
     public void removeKommune(@RequestParam int id) {
         Optional<Kommune> kommune = kommuneRepository.findById(id);
         if (kommune.isEmpty()) {
@@ -45,4 +42,16 @@ public class KommuneController {
         }
         kommuneRepository.delete(kommune.get());
     }
+
+   @PostMapping("/kommuner/add")
+   public void createKommune(
+           @RequestParam int regionId,
+           @RequestParam String kode,
+           @RequestParam String href,
+           @RequestParam String navn
+       ) {
+        Region region = regionRepository.findById(regionId).orElseThrow();
+        Kommune kommune = new Kommune(kode, href, navn, region);
+        kommuneRepository.save(kommune);
+   }
 }
